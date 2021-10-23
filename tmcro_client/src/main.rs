@@ -1,21 +1,17 @@
-extern crate websocket;
-use std::thread;
-use websocket::Message;
-use websocket::sync::Server;
+use warp::{Filter, Rejection};
+mod handlers;
+mod ws;
 
+type Result<T> = std::result::Result<T, Rejection>;
 
+#[tokio::main]
+async fn main() {
+    println!("Configuring websocket route");
+    let ws_route = warp::path::end()
+        .and(warp::ws())
+        .and_then(handlers::ws_handler);
 
-
-fn main() {
-    let srv = Server::bind("127.0.0.1:43884").unwrap();
-    for connection in srv.filter_map(Result::ok) {
-        // Spawn a new thread for each connection.
-        println!("New connection");
-        thread::spawn(move || {
-    	      let mut client = connection.accept().unwrap();
-    	      let message = Message::text("Hello, client!");
-    	      let _ = client.send_message(&message);
-              println!("New connection");
-       });
-    }
+    let routes = ws_route.with(warp::cors().allow_any_origin());
+    println!("Starting server");
+    warp::serve(routes).run(([127, 0, 0, 1], 43884)).await;
 }
