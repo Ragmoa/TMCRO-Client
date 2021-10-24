@@ -4,7 +4,7 @@ local status="INIT"
 local json = require('json')
 local socket = require('socket.core')
 local address = "127.0.0.1"
-local port = 43884
+local port = 65398
 local tcp = nil
 local textDisplay={}
 local framecount=0
@@ -70,7 +70,7 @@ while true do
   if tcp==nil then
     clientConnect()
   else
-      ret,err=tcp:send("HELLO")
+      ret,err=tcp:send("HELLO\n")
       if ret then
         print(ret)
       else

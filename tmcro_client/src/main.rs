@@ -1,17 +1,22 @@
-use warp::{Filter, Rejection};
-mod handlers;
-mod ws;
+use std::io::prelude::*;
+use std::io::BufReader;
+use std::net::{TcpListener, TcpStream};
 
-type Result<T> = std::result::Result<T, Rejection>;
 
-#[tokio::main]
-async fn main() {
-    println!("Configuring websocket route");
-    let ws_route = warp::path::end()
-        .and(warp::ws())
-        .and_then(handlers::ws_handler);
+fn handle_client (mut stream: TcpStream){
+    let mut buffer = BufReader::new(&mut stream);
+    let mut msg = Vec::new();
+    buffer.read_until(10, &mut msg);
+    let stri= String::from_utf8_lossy(&msg);
+    println!("{:?}", stri);
+    stream.write(b"Kek\n");
+}
 
-    let routes = ws_route.with(warp::cors().allow_any_origin());
-    println!("Starting server");
-    warp::serve(routes).run(([127, 0, 0, 1], 43884)).await;
+fn main() -> std::io::Result<()>{
+
+    let listener = TcpListener::bind("127.0.0.1:65398")?;
+    for stream in listener.incoming() {
+        handle_client(stream?);
+    }
+    Ok(())
 }
