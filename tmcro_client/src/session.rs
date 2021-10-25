@@ -4,14 +4,14 @@ use crate::session::instruction::Instruction as Instruction;
 
 // Represents an online session
 struct Session {
-    roomName: String,
-    playerName: String,
-    gameMode: GameMode
+    room_name: String,
+    player_name: String,
+    game_mode: GameMode
 }
 
 enum GameMode{
     Coop
     {
-        unSavedInstructions: Vec<Instruction>
+        unsave_instructions: Vec<Instruction>
     }
 }
