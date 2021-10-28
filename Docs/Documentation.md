@@ -23,12 +23,12 @@ The server handles the communications between players. It uses high-level instru
 
 #### Technology
 
-The bridge is a lua script that uses webSocket to communicate with the client.
+The bridge is a lua script that uses webSocket (more or less...) to communicate with the client.
 
 #### Reading in RAM
 
-The bridge will recieve instructions from the client as for which addresses should be watched. Here's an exemple:
+The bridge will recieve JSON instructions from the client as for which addresses should be watched. Here's an exemple:
 
 ```
-WATCH()
+{"order":"WATCH","range":["0x03002AEA","0x03002AEB"]}
 ```
