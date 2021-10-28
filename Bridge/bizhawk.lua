@@ -8,22 +8,36 @@ local port = 65398
 local tcp = nil
 local textDisplay={}
 local framecount=0
+local watchTable={}
+-- How many bytes we're checking per frame
+local bytesWatchedPerFrame=5
+local watchCounter=0
 
-function checkConnection()
-  if comm.socketServerIsConnected() == true then
-    status="CONNECTED"
-  else
-    status="DISCONNECTED"
-  end
+function addWatch(byte,value)
+  local watchElement={
+    ['byte']=byte;
+    ['value']=nil;
+  }
+  table.insert(watchTable,element)
 end
+
+function doWatches(){
+  for i=watchCounter, watchCounter+5, 1 do
+    local index=i%table.maxn(watchTable)
+    local byte=memory.readbyte(watchTable[index])
+    if (watchTable[index]['value']!=byte){
+        watchTable[index]['value']=byte
+      --Add to notification Queue
+    }
+}
 
 function addText(color,text)
   local element={
-    ["timer"]=300,
+    ["timer"]=300;
     ["color"]=color;
     ["text"]=text;
   }
-  table.insert(textDisplay,element)
+  table.insert(textDisplay,element,0)
 end
 
 function clientConnect()
@@ -55,17 +69,7 @@ function displayText()
 end
 
 
-
-
-
--- -- Initial connection
--- while comm.socketServerIsConnected() === false do
---   gui.text(0,0,"Not connected to Client","red","black","bottomright")
---   clientConnect()
---   emu.frameadvance()
--- end
-
---Connected, time for main loop
+-- Main Loop
 while true do
   if tcp==nil then
     clientConnect()
@@ -78,17 +82,9 @@ while true do
       end
     local data, err, part = tcp:receive('*l')
     if data and #data then
-      print(data)
+      handle_instruction(data);
     end
   end
---   checkConnection()
---   console.log("check done!")
---   if status == "CONNECTED" then
---     emu.frameadvance()
---   end
---   if status == "DISCONNECTED" then
---     gui.text(0,0,"Disconnected from Client","red","black","bottomright")
---   end
   displayText()
   emu.frameadvance()
 end
