@@ -1,5 +1,5 @@
 [package]
-name = "tmcro_client"
+name = "TMCRO_Client"
 version = "0.1.0"
 authors = ["Rylux <ryckaert.guillaume@neuf.fr>"]
 edition = "2018"
@@ -7,4 +7,4 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-json="^0.11"
+json="^0.12"

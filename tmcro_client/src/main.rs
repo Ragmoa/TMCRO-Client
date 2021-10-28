@@ -32,6 +32,9 @@ fn handle_client (mut stream: TcpStream){
 
 fn main() -> std::io::Result<()>{
 
+    let mut watch_test=session::Instruction::WatchByteInstruction{address:895452};
+    println!("{:?}",watch_test.to_json());
+
     let listener = TcpListener::bind("127.0.0.1:65398")?;
 
     //TODO: Remove this loop ?

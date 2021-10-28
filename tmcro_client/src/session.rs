@@ -1,6 +1,6 @@
 mod instruction;
 
-use crate::session::instruction::Instruction as Instruction;
+pub use crate::session::instruction::Instruction as Instruction;
 
 // Represents an online session
 struct Session {
