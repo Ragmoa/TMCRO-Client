@@ -13,23 +13,26 @@ local watchTable={}
 local bytesWatchedPerFrame=5
 local watchCounter=0
 
-function addWatch(byte,value)
+function addWatch(address)
   local watchElement={
-    ['byte']=byte;
-    ['value']=nil;
+    ['address']=address;
+    ['value']=nil
   }
   table.insert(watchTable,element)
 end
 
-function doWatches(){
-  for i=watchCounter, watchCounter+5, 1 do
+function doWatches()
+  for i=watchCounter, watchCounter+bytesWatchedPerFrame, 1 do
     local index=i%table.maxn(watchTable)
-    local byte=memory.readbyte(watchTable[index])
-    if (watchTable[index]['value']!=byte){
+    console.log()
+    local byte=memory.readbyte(watchTable[index]['address'])
+    if watchTable[index]['value']~=byte then
         watchTable[index]['value']=byte
-      --Add to notification Queue
-    }
-}
+        --add to notification Queue
+        addText("yellow",byte)
+    end
+  end
+end
 
 function addText(color,text)
   local element={
@@ -37,7 +40,18 @@ function addText(color,text)
     ["color"]=color;
     ["text"]=text;
   }
-  table.insert(textDisplay,element,0)
+  table.insert(textDisplay,0,element)
+end
+
+function handle_instruction(string)
+  local instruction=json.decode(data)
+  if instruction['order']=='WATCH'
+  then
+    if instruction['range'] ~= nil
+    then
+      addWatch(instruction['address'])
+    end
+  end
 end
 
 function clientConnect()
@@ -86,5 +100,6 @@ while true do
     end
   end
   displayText()
+  doWatches()
   emu.frameadvance()
 end

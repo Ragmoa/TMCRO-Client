@@ -9,9 +9,10 @@ struct Session {
     game_mode: GameMode
 }
 
+
 enum GameMode{
     Coop
     {
-        unsave_instructions: Vec<Instruction>
+        unsaved_instructions: Vec<Instruction>
     }
 }
