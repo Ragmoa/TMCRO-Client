@@ -19,19 +19,24 @@ function addWatch(address)
     ['value']=nil
   }
   table.insert(watchTable,element)
+  print("Added Waths")
 end
 
 function doWatches()
-  for i=watchCounter, watchCounter+bytesWatchedPerFrame, 1 do
-    local index=i%table.maxn(watchTable)
-    console.log()
-    local byte=memory.readbyte(watchTable[index]['address'])
-    if watchTable[index]['value']~=byte then
-        watchTable[index]['value']=byte
-        --add to notification Queue
-        addText("yellow",byte)
+  for i=watchCounter, watchCounter+bytesWatchedPerFrame, 1
+  do
+    local tableMax=table.maxn(watchTable)
+    local index=nil
+    if tableMax>0 then
+      index=i%table.maxn(watchTable)
+      local byte=memory.readbyte(watchTable[index]['address'])
+      if watchTable[index]['value']~=byte then
+          watchTable[index]['value']=byte
+          --add to notification Queue
+          addText("yellow",byte)
+        end
+      end
     end
-  end
 end
 
 function addText(color,text)
@@ -61,6 +66,7 @@ function clientConnect()
     addText("green","Connected to client")
     tcp:settimeout(0)
     tcp:setoption('keepalive',true)
+    ret,err=tcp:send("HELLO\n")
   else
     addText("red","Failed to connect to client")
     print('Failed to open socket:', err)
@@ -88,15 +94,13 @@ while true do
   if tcp==nil then
     clientConnect()
   else
-      ret,err=tcp:send("HELLO\n")
-      if ret then
-        print(ret)
-      else
-        print (err)
-      end
     local data, err, part = tcp:receive('*l')
     if data and #data then
+      print(data)
       handle_instruction(data);
+    end
+    if err and #err then
+      print(err)
     end
   end
   displayText()

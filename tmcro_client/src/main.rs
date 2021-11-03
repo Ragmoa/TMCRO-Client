@@ -14,12 +14,14 @@ fn read_message(buffer: &mut BufReader<TcpStream>) -> json::Result<JsonValue>{
     let mut vecmsg = Vec::new();
     buffer.read_until(10,&mut vecmsg);
     let mut msg=std::str::from_utf8(&vecmsg).unwrap();
+    println!("Recived {:?}",msg);
     let mut json_msg=json::parse(msg);
     json_msg
 }
 
 fn send_message(stream: &mut BufWriter<TcpStream>,message:String) -> (){
     let wbytes=stream.write(message.as_bytes());
+    println!("Sent {:?} Bytes",wbytes.unwrap());
     // if wbytes==message.len(){
     //     true
     // } else {
@@ -38,10 +40,7 @@ fn handle_client (stream: TcpStream){
     // TODO: Do this in a new thread
     loop{
         let jsonData=read_message(&mut reader);
-
-        // if (jsonData){
         //     handle_json(jsonData);
-        // }
     }
 }
 
