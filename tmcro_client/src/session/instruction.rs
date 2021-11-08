@@ -13,8 +13,11 @@ pub enum Instruction{
     WatchRangeInstruction{
         range:[u32;2],
         exclude:Vec<u32>
+    },
+    MessageInstruction{
+        message:String,
+        color:String
     }
-
 }
 impl Instruction{
 
@@ -44,6 +47,12 @@ impl Instruction{
                     exclude_vec.push(Number::from_parts(true, *evalue as u64 ,0).into());
                 }
                 json_data["exclude"]=json::JsonValue::Array(exclude_vec);
+                json::stringify(json_data)
+            }
+            Instruction::MessageInstruction{message,color} => {
+                json_data["order"]=json::JsonValue::String("MSG".to_string()).into();
+                json_data["color"]=json::JsonValue::String(color.to_string()).into();
+                json_data["message"]=json::JsonValue::String(message.to_string()).into();
                 json::stringify(json_data)
             }
         }
