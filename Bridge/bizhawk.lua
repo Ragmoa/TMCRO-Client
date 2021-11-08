@@ -32,13 +32,35 @@ function doWatches()
       -- Arrays starts at 1 with this hecking language...
       local index=(i%table.maxn(watchTable))+1
       local byte=memory.readbyte(watchTable[index]['address'])
-
       if watchTable[index]['value']~=byte then
           watchTable[index]['value']=byte
+          addWatchNotification(watchTable[index]['address'],byte)
           addText("yellow",byte)
         end
       end
     end
+end
+
+function addWatchNotification(address,value)
+  local element={
+    ["type"]="WATCH";
+    ["address"]=address;
+    ["value"]=value;
+  }
+  table.insert(notificationQueue,element)
+end
+
+-- sends the Notification at top of the queue
+function sendNotification()
+  if (table.maxn(notificationQueue)>0)
+  then
+    local element=notificationQueue[1]
+    local jsonElement=json.encode(element)
+    local ret, err=tcp:send(jsonElement.."\n")
+    if (err==nil) then
+      table.remove(notificationQueue,1)
+    end
+  end
 end
 
 function addText(color,text)
@@ -90,12 +112,15 @@ function displayText()
   end
 end
 
+addWatch(0x02002AEA)
 -- Main Loop
 while true do
   if tcp==nil then
     clientConnect()
   else
-    local data, err, part = tcp:receive('*l')
+    local data, err, part = tcp:receive(10,receivePart)
+    print(receivePart)
+    print(part)
     if data and #data then
       print(data)
       handle_instruction(data);
@@ -106,5 +131,6 @@ while true do
   end
   displayText()
   doWatches()
+  sendNotification()
   emu.frameadvance()
 end

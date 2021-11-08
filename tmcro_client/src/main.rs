@@ -14,9 +14,11 @@ fn read_message(buffer: &mut BufReader<TcpStream>) -> json::Result<JsonValue>{
     let mut vecmsg = Vec::new();
     buffer.read_until(10,&mut vecmsg);
     let mut msg=std::str::from_utf8(&vecmsg).unwrap();
-    println!("Recived {:?}",msg);
-    let mut json_msg=json::parse(msg);
-    json_msg
+    if (msg.chars().count() > 0){
+        println!("Recived {:?}",msg);
+    }
+        let mut json_msg=json::parse(msg);
+        json_msg
 }
 
 fn send_message(stream: &mut BufWriter<TcpStream>,message:String) -> (){
