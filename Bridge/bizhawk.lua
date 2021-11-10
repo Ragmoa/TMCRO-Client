@@ -14,6 +14,16 @@ local notificationQueue={}
 local bytesWatchedPerFrame=5
 local watchCounter=0
 
+function table.contains(table, element)
+  for value, _ in pairs(table) do
+    if value == element then
+      return true
+    end
+  end
+  return false
+end
+
+
 function addWatch(address)
   local watchElement={
     ['address']=address;
@@ -72,11 +82,11 @@ function addText(color,text)
   table.insert(textDisplay,1,element)
 end
 
-function handle_instruction(string)
+function handle_instruction(data)
   local instruction=json.decode(data)
   if instruction['order']=='WATCH'
   then
-    if instruction['range'] ~= nil
+    if table.contains(instruction, 'address')
     then
       addWatch(instruction['address'])
     end
@@ -112,21 +122,19 @@ function displayText()
   end
 end
 
-addWatch(0x02002AEA)
+-- addWatch(0x02002AEA)
 -- Main Loop
 while true do
   if tcp==nil then
     clientConnect()
   else
-    local data, err, part = tcp:receive(10,receivePart)
-    print(receivePart)
-    print(part)
+    local data, err, part = tcp:receive('*l')
     if data and #data then
       print(data)
       handle_instruction(data);
     end
-    if err and #err then
-      -- print(err)
+    if err and #err and err~="timeout" then
+      print(err)
     end
   end
   displayText()

@@ -23,6 +23,8 @@ fn read_message(buffer: &mut BufReader<TcpStream>) -> json::Result<JsonValue>{
 
 fn send_message(stream: &mut BufWriter<TcpStream>,message:String) -> (){
     let wbytes=stream.write(message.as_bytes());
+    stream.write(b"\n");
+    stream.flush();
     println!("Sent {:?} Bytes",wbytes.unwrap());
     // if wbytes==message.len(){
     //     true
@@ -37,12 +39,11 @@ fn handle_client (stream: TcpStream){
     let stream2 = stream.try_clone().unwrap();
     let mut reader = BufReader::new(stream);
     let mut writer = BufWriter::new(stream2);
-    let mut watch_test=session::Instruction::WatchByteInstruction{address:33565428};
+    let mut watch_test=session::Instruction::WatchByteInstruction{address:33565418};
     send_message(&mut writer,watch_test.to_json());
     // TODO: Do this in a new thread
     loop{
         let jsonData=read_message(&mut reader);
-        //     handle_json(jsonData);
     }
 }
 
