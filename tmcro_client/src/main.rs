@@ -39,8 +39,12 @@ fn handle_client (stream: TcpStream){
     let stream2 = stream.try_clone().unwrap();
     let mut reader = BufReader::new(stream);
     let mut writer = BufWriter::new(stream2);
-    let mut watch_test=session::Instruction::WatchByteInstruction{address:33565418};
-    send_message(&mut writer,watch_test.to_json());
+    let mut watch_test1=session::Instruction::WatchRangeInstruction{range:[33565490,33565497],exclude:vec![33565496]};
+    let mut watch_test2=session::Instruction::WatchRangeInstruction{range:[33565505,33565509],exclude:vec![]};
+    let mut watch_test3=session::Instruction::WatchRangeInstruction{range:[33565518,33565519],exclude:vec![]};
+    send_message(&mut writer,watch_test1.to_json());
+    send_message(&mut writer,watch_test2.to_json());
+    send_message(&mut writer,watch_test3.to_json());
     // TODO: Do this in a new thread
     loop{
         let jsonData=read_message(&mut reader);
