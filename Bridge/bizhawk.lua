@@ -14,7 +14,7 @@ local notificationQueue={}
 local bytesWatchedPerFrame=5
 local watchCounter=0
 
-function table.contains_key(table, element)
+function table.contains(table, element)
   for value, _ in pairs(table) do
     if value == element then
       return true
@@ -22,16 +22,6 @@ function table.contains_key(table, element)
   end
   return false
 end
-
-function table.contains_value(table, element)
-  for _, value in pairs(table) do
-    if value == element then
-      return true
-    end
-  end
-  return false
-end
-
 
 
 function addWatch(address)
@@ -94,29 +84,46 @@ end
 
 function handle_instruction(data)
   local instruction=json.decode(data)
+  -- WATCH instructions
   if instruction['order']=='WATCH'
   then
-    if table.contains_key(instruction, 'address')
+    -- Simple WATCH instruction
+    if table.contains(instruction, 'address')
     then
       addWatch(instruction['address'])
+
+      -- Range watch instruction
+    elseif table.contains(instruction, 'range')
+      local excludeLength=table.maxn(instruction['exclude'])
+      local exclude=false
+
+      for i=instruction['range'][1],instruction['range'][2],1
+      do
+        exclude=false
+        --- check that the address insn't excluded
+        if excludeLength > 0
+        then
+          for j=1,excludeLength,1
+          do
+            if i==instruction['exclude'][j]
+            then
+              exclude=true
+              break
+            end
+          end
+        end
+
+        if not exclude
+        then
+          addWatch(i)
+        end
+
+      end
     end
-    if (table.contains_key(instruction, 'range') and table.contains_key(instruction, 'exclude'))
-    then
-       for (i=instruction['range'][1],instruction['range'][2],1)
-       do
-         if table.contains_value(instruction['exclude'],i)
-         then
-         else
-           addWatch(i)
-         end
-    end
-  end
-  if instruction['order']=="MSG"
-  then
-    if (table.contains_key(instruction,"message") and table.contains_key(instruction,"color"))
-    then
-      addText(instruction['message'],instruction['color'])
-    end
+  elseif instruction['order']=='MSG'
+    addText(instruction['color'],instruction['message'])
+  elseif instruction['order']=='WRITE'
+
   end
 end
 
