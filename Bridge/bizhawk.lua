@@ -14,8 +14,17 @@ local notificationQueue={}
 local bytesWatchedPerFrame=5
 local watchCounter=0
 
-function table.contains(table, element)
+function table.contains_key(table, element)
   for value, _ in pairs(table) do
+    if value == element then
+      return true
+    end
+  end
+  return false
+end
+
+function table.contains_value(table, element)
+  for _, value in pairs(table) do
     if value == element then
       return true
     end
@@ -88,36 +97,22 @@ function handle_instruction(data)
   if instruction['order']=='WATCH'
   then
     -- Simple WATCH instruction
-    if table.contains(instruction, 'address')
+    if table.contains_key(instruction, 'address')
     then
       addWatch(instruction['address'])
 
       -- Range watch instruction
-    elseif table.contains(instruction, 'range')
+    elseif table.contains_key(instruction, 'range')
       local excludeLength=table.maxn(instruction['exclude'])
       local exclude=false
 
       for i=instruction['range'][1],instruction['range'][2],1
       do
-        exclude=false
-        --- check that the address insn't excluded
-        if excludeLength > 0
+        if table.contains_value(instruction['exclude'],i)
         then
-          for j=1,excludeLength,1
-          do
-            if i==instruction['exclude'][j]
-            then
-              exclude=true
-              break
-            end
-          end
-        end
-
-        if not exclude
-        then
+        else
           addWatch(i)
         end
-
       end
     end
   elseif instruction['order']=='MSG'

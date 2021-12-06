@@ -1,7 +1,7 @@
 //Orders that can be sent to the bridge
 use json::JsonValue;
 use json::number::Number;
-use log::error
+use log::error;
 
 pub enum WriteMode{
     OrWriteMode{
@@ -67,8 +67,7 @@ impl Instruction{
             }
             Instruction::WatchRangeInstruction {range,exclude} => {
                 if (range[0] >= range[1]){
-                    error!("Invalid WATCH range instruction created!, range starts at {} and ends at {}",range[0],range[1]);
-                    Err("Invalid Range")
+                    Err("Invalid WATCH range instruction created!, range starts at {} and ends at {}",range[0],range[1])
                 } else {
                 json_data["order"]=json::JsonValue::String("WATCH".to_string()).into();
                 let mut range_vec:Vec<JsonValue>=Vec::with_capacity(2);
