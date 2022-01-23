@@ -1,6 +1,8 @@
 mod instruction;
 
+
 pub use crate::session::instruction::Instruction as Instruction;
+pub use crate::inventory::Inventory as Inventory;
 
 // Represents an online session
 struct Session {
@@ -13,6 +15,7 @@ struct Session {
 enum GameMode{
     Coop
     {
-        unsaved_instructions: Vec<Instruction>
+        unsaved_instructions: Vec<Instruction>,
+        inventory: Inventory
     }
 }

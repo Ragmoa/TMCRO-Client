@@ -4,8 +4,11 @@ use std::io::BufWriter;
 use std::net::{TcpListener, TcpStream};
 use json::JsonValue;
 use log::error;
+use memory::*;
 
 mod session;
+mod inventory;
+mod memory;
 
 fn handle_json(){
 
@@ -43,7 +46,7 @@ fn handle_client (stream: TcpStream){
     let mut watch_test=session::Instruction::WatchRangeInstruction{range:[33565418,33565418],exclude:Vec::new()};
     match watch_test.to_json(){
         Ok(str) => send_message(&mut writer,str),
-        Err(_) => error!(""),
+        Err(e) => error!("{}",e),
     };
     // TODO: Do this in a new thread
     loop{
@@ -52,6 +55,7 @@ fn handle_client (stream: TcpStream){
 }
 
 fn main() -> std::io::Result<()>{
+    
 
     let listener = TcpListener::bind("127.0.0.1:65398")?;
 

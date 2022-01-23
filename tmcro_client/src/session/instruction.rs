@@ -3,38 +3,17 @@ use json::JsonValue;
 use json::number::Number;
 use log::error;
 
-pub enum WriteMode{
-    OrWriteMode{
-    },
-    AddWriteMode{
-        // Use this to prevent overflows
-        max: u32
-    }
-}
-
-impl WriteMode{
-    pub fn to_json(&self) -> String {
-        let mut json_data=JsonValue::new_object();
-        match self{
-            WriteMode::OrWriteMode{} => {
-                json_data["type"]=json::JsonValue::String("OR".to_string()).into();
-                json::stringify(json_data)
-            }
-            WriteMode::AddWriteMode{max} => {
-                json_data["type"]=json::JsonValue::String("ADD".to_string()).into();
-                json_data["max"]=Number::from_parts(true,*max as u64 ,0).into();
-                json::stringify(json_data)
-            }
-        }
-    }
-}
-
 
 pub enum Instruction{
-    WriteInstruction{
+    OrInstruction{
         address: u32,
         value: u8,
-        mode: WriteMode
+    },
+    AddInstruction{
+        startaddress: u32,
+        value: u32,
+        max: u64,
+        length: u8
     },
     WatchByteInstruction{
         address: u32
@@ -50,14 +29,22 @@ pub enum Instruction{
 }
 impl Instruction{
 
-    pub fn to_json(&self) -> Result<String,&str> {
+
+    pub fn to_json(&self) -> Result<String,String> {
         let mut json_data=JsonValue::new_object();
         match self {
-            Instruction::WriteInstruction{address,value,mode} =>{
-                json_data["order"]=json::JsonValue::String("WRITE".to_string()).into();
+            Instruction::OrInstruction{address,value} => {
+                json_data["order"]=json::JsonValue::String("OR".to_string()).into();
                 json_data["address"]=Number::from_parts(true,*address as u64 ,0).into();
                 json_data["value"]=Number::from_parts(true,*value as u64 ,0).into();
-                json_data["mode"]=json::JsonValue::String(mode.to_json());
+                Ok(json::stringify(json_data))
+            }
+            Instruction::AddInstruction{startaddress,value,max,length} => {
+                json_data["order"]=json::JsonValue::String("ADD".to_string()).into();
+                json_data["startAddress"]=Number::from_parts(true,*startaddress as u64 ,0).into();
+                json_data["value"]=Number::from_parts(true,*value as u64 ,0).into();
+                json_data["max"]=Number::from_parts(true,*max as u64 ,0).into();   
+                json_data["length"]=Number::from_parts(true,*length as u64 ,0).into();
                 Ok(json::stringify(json_data))
             }
             Instruction::WatchByteInstruction {address} => {
@@ -67,7 +54,8 @@ impl Instruction{
             }
             Instruction::WatchRangeInstruction {range,exclude} => {
                 if (range[0] >= range[1]){
-                    Err("Invalid WATCH range instruction created!, range starts at {} and ends at {}",range[0],range[1])
+                    let error=String::from("Invalid WATCH range instruction created!, range starts at ") + &range[0].to_string() + " and ends at " + &range[1].to_string();
+                    Err( error )
                 } else {
                 json_data["order"]=json::JsonValue::String("WATCH".to_string()).into();
                 let mut range_vec:Vec<JsonValue>=Vec::with_capacity(2);
